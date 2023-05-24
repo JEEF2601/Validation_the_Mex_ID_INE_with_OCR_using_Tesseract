@@ -3,6 +3,34 @@ import re
 import cv2
 import pytesseract
 
+#validate the string for clave_elector
+def validation_String_clave_elector(string, length):
+
+    '''
+    This function validate the string for clave_elector
+    '''
+
+    # patron = r'^[a-zA-Z]{6}\d{8}[a-zA-Z]\d{3}$'
+    patron = r'^([a-zA-Z]{6})(\d{8})([a-zA-Z])(\d{3})$'
+
+    coincidencias = re.match(patron, string)
+
+    if coincidencias != None:
+
+        subcadena1 = coincidencias.group(1)
+        subcadena2 = coincidencias.group(2).replace('O', '0').replace('I', '1').replace('Z', '2').replace('S', '5')
+        subcadena3 = coincidencias.group(3)
+        subcadena4 = coincidencias.group(4).replace('O', '0').replace('I', '1').replace('Z', '2').replace('S', '5')
+
+        string = subcadena1 + subcadena2 + subcadena3 + subcadena4
+
+
+    if re.match(patron, string):
+        return True
+    else:
+        return False
+
+#validate the string
 def validation_String(string, length):
 
     #validate the length of the string
@@ -90,7 +118,8 @@ def ocrFront(frame):
     #get the text
     text = pytesseract.image_to_string(umbral, config=config)
 
-    print(text)
+    # Upper the text
+    text = text.upper().replace(' ', '').replace('\n', '')
 
     #clean the text
     match_main = re.search('VOTAR', text)
@@ -98,18 +127,29 @@ def ocrFront(frame):
 
     #
     if match_main:
+
+        if match != None:
             
-        #get the SIC_INE
-        clave_elector = text[match.end():]
-        CLAVE_VALIDATION = validation_String(clave_elector, 18)
-
-        #Print the validation
-        print('Clave de elector: ', clave_elector, ' - La clave es valido: ', CLAVE_VALIDATION)
 
 
-        #Prube the validation
-        if CLAVE_VALIDATION:
-            json_return = {'Clave_Elector': clave_elector}
+            #get the SIC_INE
+            clave_elector = text[match.end():]
+            
+            # CLAVE_VALIDATION = len(clave_elector[:18]) == 18
+            CLAVE_VALIDATION = validation_String_clave_elector(clave_elector[:18], 18)
+
+            clave_elector = clave_elector[:18]
+
+            #Print the validation
+            print('Clave de elector: ', clave_elector, ' - La clave es valido: ', CLAVE_VALIDATION)
+
+
+            #Prube the validation
+            if CLAVE_VALIDATION:
+                json_return = {'Clave_Elector': clave_elector}
+            else:
+                json_return = {'Clave_Elector': 'No se encontro la clave_Elector'}
+        
         else:
             json_return = {'Clave_Elector': 'No se encontro la clave_Elector'}
 

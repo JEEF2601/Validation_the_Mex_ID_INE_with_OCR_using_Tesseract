@@ -6,9 +6,14 @@ import time
 
 # URL de la API
 # API_URL = "http://api/INE/back"
-API_URL_BACK = 'http://192.168.100.11:5000/INE/back'
-API_URL_BACK = 'http://192.168.100.11:5000/INE/front'
-API_URL_FRONT = 'http://192.168.100.11:5000/INE/front'
+API_PATH = 'http://127.0.0.1:5000'
+# API_PATH = 'Http://192.168.100.11:5000'
+
+API_URL_BACK = '/INE/back'
+API_URL_FRONT = '/INE/front'
+
+API_URL_BACK = API_PATH + API_URL_BACK
+API_URL_FRONT = API_PATH + API_URL_FRONT
 
 URL = API_URL_BACK
 
@@ -34,7 +39,7 @@ while True:
         response = requests.post(URL, json={"image": img_base64}).json()
 
         # Imprimir la respuesta de la API
-        print(response['status'], response['message'], response['data']['Clave_Elector'])
+        print(response['status'], response['message'], response['data'])
 
         # Tiene que ir antes que back porque si no, no se cambia la URL
         if(URL == API_URL_FRONT):
@@ -46,6 +51,10 @@ while True:
         if(URL == API_URL_BACK):
 
             if(response['status'] == 'OK'):
+
+                # Imprimir la respuesta de la API
+                print(response['status'], response['message'], response['data'])
+
                 # Cambiar la URL de la API
                 URL = API_URL_FRONT
                 response = ''
